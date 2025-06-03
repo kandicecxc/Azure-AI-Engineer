@@ -2,5 +2,6 @@
 ## Read more about the .amlignore file here: https://docs.microsoft.com/azure/machine-learning/how-to-save-write-experiment-files#storage-limits-of-experiment-snapshots
         
 .ipynb_aml_checkpoints/ 
+.fined_tuned_bert/
 *.amltmp 
 *.amltemp
