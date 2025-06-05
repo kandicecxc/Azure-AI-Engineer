@@ -1,0 +1,6 @@
+.ipynb_aml_checkpoints/ 
+.fined_tuned_bert/
+data/
+models/
+results/
+fine_tuned_bert/
