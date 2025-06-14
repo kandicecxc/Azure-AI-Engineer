@@ -1,0 +1,164 @@
+{
+  "cells": [
+    {
+      "cell_type": "code",
+      "source": [
+        "!pip install pandas"
+      ],
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": "Collecting pandas\n  Downloading pandas-2.0.3-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (18 kB)\nRequirement already satisfied: python-dateutil>=2.8.2 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from pandas) (2.9.0.post0)\nRequirement already satisfied: pytz>=2020.1 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from pandas) (2024.1)\nCollecting tzdata>=2022.1 (from pandas)\n  Downloading tzdata-2025.2-py2.py3-none-any.whl.metadata (1.4 kB)\nRequirement already satisfied: numpy>=1.20.3 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from pandas) (1.24.4)\nRequirement already satisfied: six>=1.5 in /anaconda/envs/azureml_py38/lib/python3.8/site-packages (from python-dateutil>=2.8.2->pandas) (1.17.0)\nDownloading pandas-2.0.3-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (12.4 MB)\n\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m12.4/12.4 MB\u001b[0m \u001b[31m129.9 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n\u001b[?25hDownloading tzdata-2025.2-py2.py3-none-any.whl (347 kB)\nInstalling collected packages: tzdata, pandas\nSuccessfully installed pandas-2.0.3 tzdata-2025.2\n"
+        }
+      ],
+      "execution_count": 2,
+      "metadata": {}
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import pandas as pd\n",
+        "import numpy as np\n",
+        "from sklearn.preprocessing import StandardScaler\n",
+        "from sklearn.model_selection import train_test_split\n",
+        "from scipy import stats\n",
+        "\n",
+        "# Generate synthetic dataset for testing\n",
+        "np.random.seed(42)\n",
+        "n_samples = 100\n",
+        "data = {\n",
+        "    'income': np.random.normal(50000, 15000, n_samples),\n",
+        "    'credit_score': np.random.normal(650, 50, n_samples),\n",
+        "    'job_title': np.random.choice(['Engineer', 'Teacher', 'Doctor', 'Artist'], n_samples),\n",
+        "    'target': np.random.choice([0, 1], n_samples)\n",
+        "}\n",
+        "\n",
+        "# Introduce missing values and outliers for testing\n",
+        "data['income'][np.random.randint(0, n_samples, 5)] = np.nan\n",
+        "data['credit_score'][np.random.randint(0, n_samples, 3)] = np.nan\n",
+        "data['income'][np.random.randint(0, n_samples, 2)] = 150000  # Outliers\n",
+        "df = pd.DataFrame(data)"
+      ],
+      "outputs": [],
+      "execution_count": 3,
+      "metadata": {
+        "gather": {
+          "logged": 1749897697454
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Handle missing values by filling with median\n",
+        "for column in df.select_dtypes(include=['float64', 'int64']).columns:\n",
+        "    df[column].fillna(df[column].median(), inplace=True)"
+      ],
+      "outputs": [],
+      "execution_count": 4,
+      "metadata": {
+        "gather": {
+          "logged": 1749897710448
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Remove duplicates\n",
+        "df.drop_duplicates(inplace=True)"
+      ],
+      "outputs": [],
+      "execution_count": 5,
+      "metadata": {
+        "gather": {
+          "logged": 1749897716507
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "scaler = StandardScaler()\n",
+        "numeric_features = df.select_dtypes(include=['float64', 'int64']).columns\n",
+        "df[numeric_features] = scaler.fit_transform(df[numeric_features])"
+      ],
+      "outputs": [],
+      "execution_count": 6,
+      "metadata": {
+        "gather": {
+          "logged": 1749897721577
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# One-hot encode categorical features\n",
+        "df = pd.get_dummies(df, drop_first=True)"
+      ],
+      "outputs": [],
+      "execution_count": 7,
+      "metadata": {
+        "gather": {
+          "logged": 1749897727529
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Detect and remove outliers using Z-score\n",
+        "z_scores = np.abs(stats.zscore(df.select_dtypes(include=['float64', 'int64'])))\n",
+        "df = df[(z_scores < 3).all(axis=1)]"
+      ],
+      "outputs": [],
+      "execution_count": 8,
+      "metadata": {
+        "gather": {
+          "logged": 1749897736266
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [],
+      "outputs": [],
+      "execution_count": null,
+      "metadata": {}
+    }
+  ],
+  "metadata": {
+    "kernelspec": {
+      "name": "azureml_py38",
+      "language": "python",
+      "display_name": "Python 3.8 - AzureML"
+    },
+    "language_info": {
+      "name": "python",
+      "version": "3.8.20",
+      "mimetype": "text/x-python",
+      "codemirror_mode": {
+        "name": "ipython",
+        "version": 3
+      },
+      "pygments_lexer": "ipython3",
+      "nbconvert_exporter": "python",
+      "file_extension": ".py"
+    },
+    "microsoft": {
+      "ms_spell_check": {
+        "ms_spell_check_language": "en"
+      }
+    },
+    "kernel_info": {
+      "name": "azureml_py38"
+    },
+    "nteract": {
+      "version": "nteract-front-end@1.0.0"
+    }
+  },
+  "nbformat": 4,
+  "nbformat_minor": 2
+}
